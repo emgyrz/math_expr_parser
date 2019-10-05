@@ -5,7 +5,7 @@ Just for training
 Dijkstra’s algorithm used
 
 
-![alt text](example.gif)
+<!-- ![alt text](example.gif) -->
 
 
 ### Run
