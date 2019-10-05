@@ -46,7 +46,7 @@ impl Lexer {
         }
       }
       Token::Op(op) => {
-        self.push_operand(*op);
+        self.push_operation(*op);
       }
     }
     self.pointer += 1;
@@ -54,19 +54,8 @@ impl Lexer {
     Ok(())
   }
 
-  fn push_operand(&mut self, op: Op) {
-    // let mut operand_ind_to_move = Vec::new();
+  fn push_operation(&mut self, op: Op) {
     let pushing_priority = op_priority(op);
-    // for (ind, t) in self.stack.iter().enumerate() {
-    //   if let Token::Op(op) = t {
-    //     if op_priority(*op) >= pushing_priority {
-    //       operand_ind_to_move.push(ind);
-    //     }
-    //   }
-    // }
-    // operand_ind_to_move.iter().for_each(|ind| {
-    //   self.output.push( self.stack.remove(*ind) );
-    // });
 
     let mut stack_pointer = self.stack.len();
     while stack_pointer != 0 {

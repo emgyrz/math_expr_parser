@@ -113,12 +113,14 @@ impl Tokenizer {
           self.push(Token::Op(Op::Mul), 1);
           return Ok(());
         } else {
-          return Err(format!("invalid operand sequence at point {}", self.pointer + 1));
+          return Err(format!("invalid operation sequence at point {}", self.pointer + 1));
         }
       }
+      self.push(Token::Op(Op::Sub), 1);
+      Ok(())
+    } else {
+      Err(format!("invalid end with operation `-` at point {}", self.pointer + 1))
     }
-    self.push(Token::Op(Op::Sub), 1);
-    Ok(())
   }
 
 
