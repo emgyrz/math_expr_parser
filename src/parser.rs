@@ -17,6 +17,7 @@ impl Expr {
         Op::Div => x.calc() / y.calc(),
         Op::Sub => x.calc() - y.calc(),
         Op::Add => x.calc() + y.calc(),
+        Op::Pow => x.calc().powf( y.calc() ),
       },
     }
   }

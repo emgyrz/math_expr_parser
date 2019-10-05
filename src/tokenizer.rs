@@ -5,6 +5,7 @@ pub enum Op {
   Div,
   Sub,
   Add,
+  Pow,
 }
 
 
@@ -15,6 +16,7 @@ impl fmt::Display for Op {
       Op::Div => "/",
       Op::Sub => "-",
       Op::Add => "+",
+      Op::Pow => "^",
     };
     write!(f, "{}", s)
   }
@@ -74,6 +76,7 @@ impl Tokenizer {
       ')' => self.push(Token::Bracket(false), 1),
       '*' => self.push(Token::Op(Op::Mul), 1),
       '/' => self.push(Token::Op(Op::Div), 1),
+      '^' => self.push(Token::Op(Op::Pow), 1),
       '+' => {
         if let Some(n) = next {
           if !space_checker(n) {
@@ -87,7 +90,7 @@ impl Tokenizer {
         self.handle_sub(next)?;
       },
       x if x.is_ascii_digit() => self.handle_digit(s)?,
-      _ => return Err(format!("unrecognized input `{}` at point {}", ch, self.pointer + 1)),
+      _ => return Err(format!("unrecognized input `{}` at position {}", ch, self.pointer + 1)),
     }
 
     Ok(())
@@ -100,7 +103,7 @@ impl Tokenizer {
       self.push(Token::Digit(d), digit_str_len);
       Ok(())
     } else {
-      Err(format!("cannot parse digit `{}` at point {}", digit_str, self.pointer + 1))
+      Err(format!("cannot parse digit `{}` at position {}", digit_str, self.pointer + 1))
     }
   }
 
@@ -113,13 +116,13 @@ impl Tokenizer {
           self.push(Token::Op(Op::Mul), 1);
           return Ok(());
         } else {
-          return Err(format!("invalid operation sequence at point {}", self.pointer + 1));
+          return Err(format!("invalid operation sequence at position {}", self.pointer + 1));
         }
       }
       self.push(Token::Op(Op::Sub), 1);
       Ok(())
     } else {
-      Err(format!("invalid end with operation `-` at point {}", self.pointer + 1))
+      Err(format!("invalid end with operation `-` at position {}", self.pointer + 1))
     }
   }
 
@@ -143,8 +146,4 @@ impl Tokenizer {
 
     (&s[..idx], idx)
   }
-
-  // fn trim(&mut self) {
-  //   let r = self.list.iter().skip_while(|t| true);
-  // }
 }

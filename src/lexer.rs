@@ -3,7 +3,8 @@ use crate::tokenizer::{Op, Token};
 fn op_priority(op: Op) -> u8 {
   match op {
     Op::Add | Op::Sub => 3,
-    _ => 4,
+    Op::Mul | Op::Div => 4,
+    Op::Pow => 5,
   }
 }
 
