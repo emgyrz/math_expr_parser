@@ -33,14 +33,15 @@ pub struct Parser {
 impl Parser {
   pub fn parse(s: &str) -> Result<Expr,String> {
 
-    let mut tokens = Tokenizer::tokenize(s)?;
-    let posfix_tokens =  Lexer::analyze(&mut tokens)?;
+    let tokens = Tokenizer::tokenize(s)?;
+    let posfix_tokens =  Lexer::analyze(tokens)?;
 
     let mut p = Parser::default();
     let len = posfix_tokens.len();
     while p.pointer < len {
       p.read(&posfix_tokens[p.pointer])?;
     }
+
 
     if p.stack.len() != 1 {
       return Err("error parsing expression".to_string());

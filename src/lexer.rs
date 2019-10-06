@@ -22,7 +22,7 @@ pub struct Lexer {
 }
 
 impl Lexer {
-  pub fn analyze(tokens: &mut VecDeque<Token>) -> Result<Vec<LexerToken>, String> {
+  pub fn analyze(mut tokens: VecDeque<Token>) -> Result<Vec<LexerToken>, String> {
     let mut lexer = Lexer::default();
     while let Some(t) = tokens.pop_front() {
       lexer.handle(t)?;
