@@ -33,8 +33,8 @@ pub struct Parser {
 impl Parser {
   pub fn parse(s: &str) -> Result<Expr,String> {
 
-    let tokens = Tokenizer::tokenize(s)?;
-    let posfix_tokens =  Lexer::analyze(&tokens)?;
+    let mut tokens = Tokenizer::tokenize(s)?;
+    let posfix_tokens =  Lexer::analyze(&mut tokens)?;
 
     let mut p = Parser::default();
     let len = posfix_tokens.len();

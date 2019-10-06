@@ -17,40 +17,37 @@ pub enum LexerToken {
 
 #[derive(Default, Debug)]
 pub struct Lexer {
-  pointer: usize,
   stack: VecDeque<Token>,
   output: Vec<LexerToken>,
 }
 
 impl Lexer {
-  pub fn analyze(tokens: &VecDeque<Token>) -> Result<Vec<LexerToken>, String> {
+  pub fn analyze(tokens: &mut VecDeque<Token>) -> Result<Vec<LexerToken>, String> {
     let mut lexer = Lexer::default();
-    let len = tokens.len();
-    while lexer.pointer < len {
-      lexer.handle(&tokens[lexer.pointer])?;
+    while let Some(t) = tokens.pop_front() {
+      lexer.handle(t)?;
     }
     lexer.clear_stack();
     Ok(lexer.output)
   }
 
-  fn handle(&mut self, token: &Token) -> Result<(), String> {
+  fn handle(&mut self, token: Token) -> Result<(), String> {
     match token {
       Token::Digit(d) => {
-        self.output.push(LexerToken::Digit(*d));
+        self.output.push(LexerToken::Digit(d));
       }
       Token::Bracket(is_opening) => {
-        if *is_opening {
-          self.stack.push_back(*token);
+        if is_opening {
+          self.stack.push_back(token);
         } else {
           self.move_brackets_from_stack()?;
         }
       }
       Token::Op(op) => {
-        self.push_operation(*op);
+        self.push_operation(op);
       }
     }
-    self.pointer += 1;
-    // println!("{} {:?}", self.pointer, self.stack);
+    // println!("{} {:?}", self.stack);
     Ok(())
   }
 
@@ -97,9 +94,6 @@ impl Lexer {
       }
     }
 
-    Err(format!(
-      "not found pair for bracket at position {}",
-      self.pointer
-    ))
+    Err("not found pair for bracket".to_string())
   }
 }
