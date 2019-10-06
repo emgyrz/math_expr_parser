@@ -1,4 +1,6 @@
+use std::collections::VecDeque;
 use std::fmt;
+
 #[derive(Debug,Clone,Copy,PartialEq,Eq)]
 pub enum Op {
   Mul,
@@ -41,26 +43,26 @@ fn space_checker(ch: char) -> bool {
 
 #[derive(Debug)]
 pub struct Tokenizer {
-  list: Vec<Token>,
+  stack: VecDeque<Token>,
   pointer: usize,
 }
 
 impl Tokenizer {
-  pub fn tokenize(s: &str) -> Result<Vec<Token>, String> {
+  pub fn tokenize(s: &str) -> Result<VecDeque<Token>, String> {
     let mut t = Tokenizer {
       pointer: 0,
-      list: Vec::new(),
+      stack: VecDeque::new(),
     };
     let s_len = s.len();
     while t.pointer < s_len {
       t.read(s)?;
       // t.trim();
     }
-    Ok(t.list)
+    Ok(t.stack)
   }
 
   fn push(&mut self, token: Token, count: usize) {
-    self.list.push(token);
+    self.stack.push_back(token);
     self.pointer += count;
   }
 

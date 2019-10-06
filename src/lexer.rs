@@ -1,4 +1,5 @@
 use crate::tokenizer::{Op, Token};
+use std::collections::VecDeque;
 
 fn op_priority(op: Op) -> u8 {
   match op {
@@ -14,17 +15,15 @@ pub enum LexerToken {
   Op(Op),
 }
 
-
-
 #[derive(Default, Debug)]
 pub struct Lexer {
   pointer: usize,
-  stack: Vec<Token>,
+  stack: VecDeque<Token>,
   output: Vec<LexerToken>,
 }
 
 impl Lexer {
-  pub fn analyze(tokens: &[Token]) -> Result<Vec<LexerToken>, String> {
+  pub fn analyze(tokens: &VecDeque<Token>) -> Result<Vec<LexerToken>, String> {
     let mut lexer = Lexer::default();
     let len = tokens.len();
     while lexer.pointer < len {
@@ -37,11 +36,11 @@ impl Lexer {
   fn handle(&mut self, token: &Token) -> Result<(), String> {
     match token {
       Token::Digit(d) => {
-        self.output.push(LexerToken::Digit( *d ));
+        self.output.push(LexerToken::Digit(*d));
       }
       Token::Bracket(is_opening) => {
         if *is_opening {
-          self.stack.push(*token);
+          self.stack.push_back(*token);
         } else {
           self.move_brackets_from_stack()?;
         }
@@ -58,13 +57,11 @@ impl Lexer {
   fn push_operation(&mut self, op: Op) {
     let pushing_priority = op_priority(op);
 
-    let mut stack_pointer = self.stack.len();
-    while stack_pointer != 0 {
-      if let Token::Op(op) = &self.stack[stack_pointer - 1] {
+    while let Some(t) = self.stack.back() {
+      if let Token::Op(op) = t {
         if op_priority(*op) >= pushing_priority {
           self.output.push(LexerToken::Op(*op));
-          self.stack.remove(stack_pointer - 1);
-          stack_pointer -= 1;
+          self.stack.pop_back();
         } else {
           break;
         }
@@ -73,11 +70,11 @@ impl Lexer {
       }
     }
 
-    self.stack.push(Token::Op(op));
+    self.stack.push_back(Token::Op(op));
   }
 
   fn clear_stack(&mut self) {
-    for t in self.stack.drain(..).rev() {
+    while let Some(t) = self.stack.pop_back() {
       if let Token::Op(op) = t {
         self.output.push(LexerToken::Op(op));
       }
@@ -85,28 +82,24 @@ impl Lexer {
   }
 
   fn move_brackets_from_stack(&mut self) -> Result<(), String> {
-    // let part = &self.stack[..self.pointer];
-    let last_opening = self.stack.iter().enumerate().rev().find(|(_, t)| match t {
-      Token::Bracket(is_opening) => *is_opening,
-      _ => false,
-    });
-
-    let ind = if let Some((ind, _)) = last_opening {
-      ind
-    } else {
-      return Err(format!(
-        "not found pair for bracket at position {}",
-        self.pointer
-      ));
-    };
-    for (ind, t) in self.stack.drain(ind..).enumerate().rev() {
-      if ind != 0 {
-        if let Token::Op(op) = t {
-          self.output.push(LexerToken::Op(op));
+    let mut tmp: VecDeque<Op> = VecDeque::new();
+    while let Some(t) = self.stack.pop_back() {
+      if let Token::Bracket(is_opening) = t {
+        if is_opening {
+          for op in tmp.drain(..) {
+            self.output.push(LexerToken::Op(op));
+          }
+          return Ok(());
         }
+      }
+      if let Token::Op(op) = t {
+        tmp.push_back(op);
       }
     }
 
-    Ok(())
+    Err(format!(
+      "not found pair for bracket at position {}",
+      self.pointer
+    ))
   }
 }
