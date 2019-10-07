@@ -15,7 +15,7 @@ pub enum LexerToken {
   Op(Op),
 }
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct Lexer {
   stack: VecDeque<Token>,
   output: Vec<LexerToken>,
@@ -23,7 +23,10 @@ pub struct Lexer {
 
 impl Lexer {
   pub fn analyze(mut tokens: VecDeque<Token>) -> Result<Vec<LexerToken>, String> {
-    let mut lexer = Lexer::default();
+    let mut lexer = Lexer {
+      stack: VecDeque::with_capacity(5),
+      output: Vec::with_capacity(tokens.len())
+    };
     while let Some(t) = tokens.pop_front() {
       lexer.handle(t)?;
     }

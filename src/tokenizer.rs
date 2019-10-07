@@ -51,13 +51,14 @@ impl Tokenizer {
   pub fn tokenize(s: &str) -> Result<VecDeque<Token>, String> {
     let mut t = Tokenizer {
       pointer: 0,
-      stack: VecDeque::new(),
+      stack: VecDeque::with_capacity(s.len()),
     };
     let s_len = s.len();
     while t.pointer < s_len {
       t.read(s)?;
       // t.trim();
     }
+    t.stack.shrink_to_fit();
     Ok(t.stack)
   }
 
